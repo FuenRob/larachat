@@ -1,0 +1,45 @@
+version: "3.7"
+services:
+
+#Laravel App
+    app:
+        build:
+            args:
+                user: FuenRob
+                uid: 501
+            context: ./
+            dockerfile: Dockerfile
+        image: laravel-app
+        restart: unless-stopped
+        working_dir: /var/www/application
+        volumes:
+            - ./:/var/www
+        networks:
+            - larachat
+    
+    #Nginx Service
+    nginx:
+        image: nginx:alpine
+        restart: unless-stopped
+        ports:
+            - 8000:80
+        volumes:
+            - ./:/var/www
+            - ./nginx/conf.d:/etc/nginx/conf.d/
+        networks:
+            - larachat
+    #Mysl Service
+    db:
+        image: mysql:8
+        restart: unless-stopped
+        environment:
+            MYSQL_DATABASE: "larachat"
+            MYSQL_ROOT_PASSWORD: "larachat-root-pass"
+            MYSQL_PASSWORD: "larachat-pass"
+            MYSQL_USER: "larachat-user"
+        networks:
+            - larachat
+
+networks:
+    larachat:
+        driver: bridge
